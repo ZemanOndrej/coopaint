@@ -1,44 +1,14 @@
 (function() {
+  window.WebSocket = window.WebSocket || window.MozWebSocket;
+  const connection = new WebSocket('ws://ozeman.eu:1338');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
   let mouseDown = false;
+  let mouseMove = false;
   let lastCtxCoords = { x: null, y: null };
-
-  canvas.addEventListener('click', e => {
-    let { x, y } = getMousePos(e);
-    paintPixel(0, 0, 0, 1, x, y);
-  });
-  canvas.addEventListener('mouseout', e => {
-    mouseDown = false;
-  });
-
-  canvas.addEventListener('mousedown', e => {
-    if (e.which == 1) {
-      lastCtxCoords = getMousePos(e);
-      mouseDown = true;
-      ctx.moveTo(lastCtxCoords.x, lastCtxCoords.y);
-    }
-  });
-  canvas.addEventListener('mouseup', () => {
-    mouseDown = false;
-  });
-
-  canvas.addEventListener('mousemove', e => {
-    if (mouseDown) {
-      let { x, y } = getMousePos(e);
-      connection.send(
-        JSON.stringify({
-          x1: lastCtxCoords.x,
-          y1: lastCtxCoords.y,
-          x2: x,
-          y2: y
-        })
-      );
-      lastCtxCoords = { x, y };
-    }
-  });
+  let currentMousePos = { x: null, y: null };
 
   function getMousePos(evt) {
     const rect = canvas.getBoundingClientRect();
@@ -60,19 +30,56 @@
     ctx.stroke();
   }
 
-  window.WebSocket = window.WebSocket || window.MozWebSocket;
-
-  const connection = new WebSocket('ws://ozeman.eu:1338');
-
-  connection.onopen = e => {
-    console.log(e);
-  };
-
   function parseAndDrawLine(data) {
     let line = JSON.parse(data);
     let { x1, y1, x2, y2 } = line;
     drawLine(x1, y1, x2, y2);
   }
+
+  function sendLoop() {
+    if (mouseDown && mouseMove && lastCtxCoords) {
+      connection.send(
+        JSON.stringify({
+          x1: lastCtxCoords.x,
+          y1: lastCtxCoords.y,
+          x2: currentMousePos.x,
+          y2: currentMousePos.y
+        })
+      );
+      lastCtxCoords = currentMousePos;
+      mouseMove = false;
+    }
+    setTimeout(sendLoop, 25);
+  }
+  canvas.addEventListener('click', e => {
+    let { x, y } = getMousePos(e);
+    paintPixel(0, 0, 0, 1, x, y);
+  });
+
+  canvas.addEventListener('mouseout', e => {
+    mouseDown = false;
+  });
+
+  canvas.addEventListener('mousedown', e => {
+    if (e.which == 1) {
+      lastCtxCoords = getMousePos(e);
+      mouseDown = true;
+      ctx.moveTo(lastCtxCoords.x, lastCtxCoords.y);
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    mouseDown = false;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    mouseMove = true;
+    currentMousePos = getMousePos(e);
+  });
+
+  connection.onopen = e => {
+    console.log(e);
+  };
 
   connection.onerror = error => {};
 
@@ -86,8 +93,10 @@
       parseAndDrawLine(json.data);
     }
   };
+
   window.addEventListener('beforeunload', e => {
     websocket.onclose = () => {};
     websocket.close();
   });
+  sendLoop();
 })();

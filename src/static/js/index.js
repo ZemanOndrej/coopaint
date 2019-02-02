@@ -68,23 +68,22 @@
     console.log(e);
   };
 
+  function parseAndDrawLine(data) {
+    let line = JSON.parse(data);
+    let { x1, y1, x2, y2 } = line;
+    drawLine(x1, y1, x2, y2);
+  }
+
   connection.onerror = error => {};
 
   connection.onmessage = message => {
-    try {
-      const json = JSON.parse(message.data);
-      console.log(json);
-      if (json.type === 'init' && json.id) {
-        clientId = json.id;
-      } else if (json.type === 'line' && json.data) {
-        let data = JSON.parse(json.data);
-        console.log(data);
-        let { x1, y1, x2, y2 } = data;
-        drawLine(x1, y1, x2, y2);
-      }
-    } catch (e) {
-      console.log("This doesn't look like a valid JSON: ", message.data);
-      return;
+    const json = JSON.parse(message.data);
+    if (json.type === 'init' && json.id) {
+      json.data.forEach(line => {
+        parseAndDrawLine(line);
+      });
+    } else if (json.type === 'line' && json.data) {
+      parseAndDrawLine(json.data);
     }
   };
   window.addEventListener('beforeunload', e => {

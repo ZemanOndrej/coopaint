@@ -2,6 +2,7 @@ const WebSocketServer = require('websocket').server;
 const http = require('http');
 const uuid = require('uuid/v1');
 const port = 1338;
+const state = [];
 const server = http.createServer(function(request, response) {});
 server.listen(port, () => {
   console.log('listening for sockets on ' + port);
@@ -23,12 +24,14 @@ wsServer.on('request', function(request) {
     JSON.stringify({
       message: 'new client has connected',
       type: 'init',
-      id
+      id,
+      data: state
     })
   );
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
+      state.push(message.utf8Data);
       sendToAll(JSON.stringify({ type: 'line', data: message.utf8Data }));
     }
   });

@@ -7,7 +7,8 @@
   font-style: normal;
   border: 0;
   text-decoration: none;
-  list-style-type: none
+  list-style-type: none;
+  font-family: 'Roboto', sans-serif;
 }
 
 html, body {
@@ -17,10 +18,74 @@ html, body {
   overflow: hidden;
 }
 
-.canvas {
-  background: #ffffff;
+body, .app, html {
+  height: 100vh;
 }
 
-body, .canvas-container, .app, html {
-  height: 100vh;
+.canvas {
+  background: #ffffff;
+  border: solid #000000 1px;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #1b2838;
+}
+
+.settings {
+  position: absolute;
+  width: 300px;
+  height: 150px;
+  background: #d1d1d1;
+  border: 2px solid #eeeeee;
+  padding: 50px 50px 20px 50px
+}
+
+.settings-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.control {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.buttons {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.not-active {
+  display: none;
+}
+
+.button-style {
+  color: #fff !important;
+  text-transform: uppercase;
+  background: #60a3bc;
+  padding: 8px;
+  border-radius: 10px;
+  display: inline-block;
+  border: none;
+  width: 100px;
+}
+
+.button-style:hover {
+  text-shadow: 0px 0px 6px rgba(255, 255, 255, 1);
+  -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
+  -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
+  transition: all 0.4s ease 0s;
 }

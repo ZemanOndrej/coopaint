@@ -5,12 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Canvas</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="app" id="app">
       <div id="canvas-container" class="canvas-container">
-        <canvas id="canvas" class="canvas"></canvas>
+        <canvas
+          id="canvas"
+          class="canvas"
+          oncontextmenu="return false;"
+        ></canvas>
+      </div>
+      <div
+        class="settings not-active"
+        id="settings"
+        oncontextmenu="return false;"
+      >
+        <div class="settings-container">
+          <div class="controls">
+            <div class="color-select-control control">
+              <label for="color-select">Select Color</label>
+              <input type="color" name="color-select" id="color-select" />
+            </div>
+          </div>
+          <div class="buttons">
+            <button id="close-settings" class="close-settings button-style">
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <script src="./js/index.js"></script>

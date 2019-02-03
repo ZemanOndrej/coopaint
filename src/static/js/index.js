@@ -2,9 +2,14 @@
   window.WebSocket = window.WebSocket || window.MozWebSocket;
   const connection = new WebSocket('ws://ozeman.eu:1338');
   const canvas = document.getElementById('canvas');
+  const closeSettingsBtn = document.getElementById('close-settings');
+  const settings = document.getElementById('settings');
+  const colorSelect = document.getElementById('color-select');
   const ctx = canvas.getContext('2d');
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  ctx.canvas.width = 1800;
+  ctx.canvas.height = 950;
+  const defaultColor = '#000000';
+  colorSelect.value = defaultColor;
   let mouseDown = false;
   let mouseMove = false;
   let lastCtxCoords = { x: null, y: null };
@@ -23,8 +28,9 @@
     ctx.fillRect(x, y, 1, 1);
   }
 
-  function drawLine(x1, y1, x2, y2) {
+  function drawLine(x1, y1, x2, y2, color) {
     ctx.beginPath();
+    ctx.strokeStyle = color || defaultColor;
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
@@ -32,8 +38,11 @@
 
   function parseAndDrawLine(data) {
     let line = JSON.parse(data);
-    let { x1, y1, x2, y2 } = line;
-    drawLine(x1, y1, x2, y2);
+    let { x1, y1, x2, y2, color } = line;
+    drawLine(x1, y1, x2, y2, color);
+  }
+  function closeSettings() {
+    settings.classList.add('not-active');
   }
 
   function sendLoop() {
@@ -43,13 +52,13 @@
           x1: lastCtxCoords.x,
           y1: lastCtxCoords.y,
           x2: currentMousePos.x,
-          y2: currentMousePos.y
+          y2: currentMousePos.y,
+          color: colorSelect.value || defaultColor
         })
       );
       lastCtxCoords = currentMousePos;
       mouseMove = false;
     }
-    setTimeout(sendLoop, 25);
   }
   canvas.addEventListener('click', e => {
     let { x, y } = getMousePos(e);
@@ -68,14 +77,23 @@
     }
   });
 
-  canvas.addEventListener('mouseup', () => {
+  canvas.addEventListener('mouseup', e => {
     mouseDown = false;
+    if (e.which == 3) {
+      const cursorCoords = getMousePos(e);
+      settings.style.left = `${cursorCoords.x-150}px`;
+      settings.style.top = `${cursorCoords.y-75}px`;
+      settings.classList.remove('not-active');
+    }
   });
 
   canvas.addEventListener('mousemove', e => {
     mouseMove = true;
     currentMousePos = getMousePos(e);
   });
+
+  closeSettingsBtn.addEventListener('click', closeSettings);
+  colorSelect.addEventListener('change', closeSettings);
 
   connection.onopen = e => {
     console.log(e);
@@ -94,9 +112,10 @@
     }
   };
 
+  const loop = setInterval(sendLoop, 25);
   window.addEventListener('beforeunload', e => {
     websocket.onclose = () => {};
     websocket.close();
+    clearInterval(loop);
   });
-  sendLoop();
 })();

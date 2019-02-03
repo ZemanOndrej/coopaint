@@ -27,12 +27,17 @@ body, .app, html {
   border: solid #000000 1px;
 }
 
+.info {
+  color: #fff;
+  font-size: 12px
+}
+
 .canvas-container {
   display: flex;
-  justify-content: center;
   align-items: center;
   height: 100%;
   background: #1b2838;
+  flex-direction: column;
 }
 
 .settings {
@@ -85,6 +90,7 @@ body, .app, html {
 
 .button-style:hover {
   text-shadow: 0px 0px 6px rgba(255, 255, 255, 1);
+  box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
   -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
   -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
   transition: all 0.4s ease 0s;

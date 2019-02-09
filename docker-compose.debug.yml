@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+  canvas-paint:
+    image: canvas-paint
+    build: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - 1337:1337
+      - 9229:9229
+    command: node --inspect=0.0.0.0:9229 ./src/server.js

@@ -6,7 +6,7 @@ const app = express();
 const port = 1337;
 const state = [];
 const server = http.createServer(app);
-app.use(express.static('static'));
+app.use(express.static(__dirname + '/static'));
 const connectedClients = {};
 const wss = new websocket.Server({ server });
 

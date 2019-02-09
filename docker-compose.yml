@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  canvas-paint:
+    image: canvas-paint
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 1337:1337

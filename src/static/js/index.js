@@ -1,6 +1,6 @@
 (function() {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
-  const connection = new WebSocket('ws://ozeman.eu:1338');
+  const connection = new WebSocket('ws://ozeman.eu:1337');
   const canvas = document.getElementById('canvas');
   const closeSettingsBtn = document.getElementById('close-settings');
   const settings = document.getElementById('settings');
@@ -81,8 +81,8 @@
     mouseDown = false;
     if (e.which == 3) {
       const cursorCoords = getMousePos(e);
-      settings.style.left = `${cursorCoords.x-150}px`;
-      settings.style.top = `${cursorCoords.y-75}px`;
+      settings.style.left = `${cursorCoords.x - 150}px`;
+      settings.style.top = `${cursorCoords.y - 75}px`;
       settings.classList.remove('not-active');
     }
   });

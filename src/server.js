@@ -4,11 +4,17 @@ const uuid = require('uuid/v1');
 const express = require('express');
 const app = express();
 const port = 1337;
-const state = [];
+let state = [];
 const server = http.createServer(app);
 app.use(express.static(__dirname + '/static'));
 const connectedClients = {};
 const wss = new websocket.Server({ server });
+const schedule = require('node-schedule');
+
+const job = schedule.scheduleJob('0 0 * * *', () => {
+  const dateOld = new Date().getDate() - 2;
+  state = state.filter(({ date }) => date.getDate() > dateOld);
+});
 
 wss.on('connection', ws => {
   const id = uuid();
@@ -25,6 +31,7 @@ wss.on('connection', ws => {
   );
 
   ws.on('message', message => {
+    message.date = new Date();
     state.push(message);
     sendToAll(JSON.stringify({ type: 'line', data: message }));
   });

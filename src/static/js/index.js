@@ -41,6 +41,7 @@
     let { x1, y1, x2, y2, color } = line;
     drawLine(x1, y1, x2, y2, color);
   }
+
   function closeSettings() {
     settings.classList.add('not-active');
   }
@@ -96,7 +97,7 @@
   colorSelect.addEventListener('change', closeSettings);
 
   connection.onopen = e => {
-    console.log(e);
+    console.log('Successfully connected to websocket server!');
   };
 
   connection.onerror = error => {};

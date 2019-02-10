@@ -1,6 +1,6 @@
 (function() {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
-  const connection = new WebSocket('ws://ozeman.eu:1337');
+  const connection = new WebSocket('ws://' + window.location.host);
   const canvas = document.getElementById('canvas');
   const closeSettingsBtn = document.getElementById('close-settings');
   const settings = document.getElementById('settings');
@@ -114,8 +114,8 @@
 
   const loop = setInterval(sendLoop, 25);
   window.addEventListener('beforeunload', e => {
-    websocket.onclose = () => {};
-    websocket.close();
+    connection.onclose = () => {};
+    connection.close();
     clearInterval(loop);
   });
 })();

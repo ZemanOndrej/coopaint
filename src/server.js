@@ -11,7 +11,7 @@ const connectedClients = {};
 const wss = new websocket.Server({ server });
 const schedule = require('node-schedule');
 
-const job = schedule.scheduleJob('0 0 * * *', () => {
+const job = schedule.scheduleJob({ hour: 0, minute: 0 }, () => {
   const dateOld = new Date().getDate() - 2;
   state = state.filter(({ date }) => date.getDate() > dateOld);
 });
@@ -31,8 +31,11 @@ wss.on('connection', ws => {
   );
 
   ws.on('message', message => {
-    message.date = new Date();
-    state.push(message);
+    state.push(
+      Object.assign(message, {
+        date: new Date()
+      })
+    );
     sendToAll(JSON.stringify({ type: 'line', data: message }));
   });
 

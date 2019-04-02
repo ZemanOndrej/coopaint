@@ -1,4 +1,4 @@
-(function() {
+(function () {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
   const connection = new WebSocket('ws://' + window.location.host);
   const canvas = document.getElementById('canvas');
@@ -6,10 +6,13 @@
   const settings = document.getElementById('settings');
   const colorSelect = document.getElementById('color-select');
   const ctx = canvas.getContext('2d');
+  const penSizeInput = document.getElementById('pen-size-input')
   ctx.canvas.width = 1800;
   ctx.canvas.height = 950;
   const defaultColor = '#000000';
+  const defaultPenSize = 1;
   colorSelect.value = defaultColor;
+  penSizeInput.value = defaultPenSize
   let mouseDown = false;
   let mouseMove = false;
   let lastCtxCoords = { x: null, y: null };
@@ -23,13 +26,9 @@
     };
   }
 
-  function paintPixel(r, g, b, a, x, y) {
-    ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-    ctx.fillRect(x, y, 1, 1);
-  }
-
   function drawLine(x1, y1, x2, y2, color) {
     ctx.beginPath();
+    ctx.lineWidth = penSizeInput.value;
     ctx.strokeStyle = color || defaultColor;
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -54,17 +53,14 @@
           y1: lastCtxCoords.y,
           x2: currentMousePos.x,
           y2: currentMousePos.y,
-          color: colorSelect.value || defaultColor
+          color: colorSelect.value || defaultColor,
+
         })
       );
       lastCtxCoords = currentMousePos;
       mouseMove = false;
     }
   }
-  canvas.addEventListener('click', e => {
-    let { x, y } = getMousePos(e);
-    paintPixel(0, 0, 0, 1, x, y);
-  });
 
   canvas.addEventListener('mouseout', e => {
     mouseDown = false;
@@ -77,6 +73,10 @@
       ctx.moveTo(lastCtxCoords.x, lastCtxCoords.y);
     }
   });
+
+  penSizeInput.addEventListener('change', e => {
+
+  })
 
   canvas.addEventListener('mouseup', e => {
     mouseDown = false;
@@ -100,7 +100,7 @@
     console.log('Successfully connected to websocket server!');
   };
 
-  connection.onerror = error => {};
+  connection.onerror = error => { };
 
   connection.onmessage = message => {
     const json = JSON.parse(message.data);
@@ -115,7 +115,7 @@
 
   const loop = setInterval(sendLoop, 25);
   window.addEventListener('beforeunload', e => {
-    connection.onclose = () => {};
+    connection.onclose = () => { };
     connection.close();
     clearInterval(loop);
   });

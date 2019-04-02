@@ -82,6 +82,7 @@ html {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin: 5px;
 }
 
 .buttons {
@@ -111,4 +112,8 @@ html {
   -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
   -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
   transition: all 0.4s ease 0s;
+}
+
+.controls input {
+  width: 70px;
 }

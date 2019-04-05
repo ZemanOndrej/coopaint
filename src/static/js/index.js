@@ -1,26 +1,27 @@
-(function () {
+(function() {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
   const connection = new WebSocket('ws://' + window.location.host);
   const canvas = document.getElementById('canvas');
   const closeSettingsBtn = document.getElementById('close-settings');
   const settings = document.getElementById('settings');
   const colorSelect = document.getElementById('color-select');
-  const redoButton = document.getElementById('redo-button')
-  const undoButton = document.getElementById('undo-button')
+  const redoButton = document.getElementById('redo-button');
+  const undoButton = document.getElementById('undo-button');
   const ctx = canvas.getContext('2d');
-  const penSizeInput = document.getElementById('pen-size-input')
+  const penSizeInput = document.getElementById('pen-size-input');
   ctx.canvas.width = 1800;
   ctx.canvas.height = 950;
   const defaultColor = '#000000';
   const defaultPenSize = 1;
   colorSelect.value = defaultColor;
-  penSizeInput.value = defaultPenSize
+  penSizeInput.value = defaultPenSize;
   let mouseDown = false;
   let mouseMove = false;
   let mouseDownEvent = false;
   let segmentEnd = false;
   let lastCtxCoords = { x: null, y: null };
   let currentMousePos = { x: null, y: null };
+  let sentSegments=0;
 
   function getMousePos(evt) {
     const rect = canvas.getBoundingClientRect();
@@ -50,37 +51,42 @@
   }
 
   function sendLoop() {
-    if (mouseDown && mouseMove && lastCtxCoords) {
-      let message =
-      {
+    if ((mouseDown && mouseMove && lastCtxCoords) || segmentEnd) {
+      console.log(mouseDown || segmentEnd);
+      let message = {
         x1: lastCtxCoords.x,
         y1: lastCtxCoords.y,
         x2: currentMousePos.x,
         y2: currentMousePos.y,
-        color: colorSelect.value || defaultColor,
+        color: colorSelect.value || defaultColor
       };
       if (mouseDownEvent) {
-        message["segmentStart"] = true;
+        message['segmentStart'] = true;
         mouseDownEvent = false;
-        console.log("segmentStart");
-      } else if (segmentEnd) {
-        message["segmentEnd"] = true;
+        console.log('segmentStart');
+      }
+      if (segmentEnd) {
+        message['segmentEnd'] = true;
         segmentEnd = false;
-        console.log("segmentEnd");
+        sentSegments++;
+        console.log('segmentEnd');
       }
 
-      connection.send(
-        JSON.stringify(message)
-      );
+      connection.send(JSON.stringify(message));
       lastCtxCoords = currentMousePos;
       mouseMove = false;
     }
   }
 
-  canvas.addEventListener('mouseout', e => {
-    mouseDown = false;
-    segmentEnd = true;
+  undoButton.addEventListener('click', e => {
+    connection.send(JSON.stringify({ type: 'undo' }));
+  });
 
+  canvas.addEventListener('mouseout', e => {
+    if (mouseDown) {
+      mouseDown = false;
+      segmentEnd = true;
+    }
   });
 
   canvas.addEventListener('mousedown', e => {
@@ -92,11 +98,12 @@
     }
   });
 
-  penSizeInput.addEventListener('change', e => {
-
-  })
+  penSizeInput.addEventListener('change', e => {});
 
   canvas.addEventListener('mouseup', e => {
+    if (e.which == 1 && mouseDown) {
+      segmentEnd = true;
+    }
     mouseDown = false;
     if (e.which == 3) {
       const cursorCoords = getMousePos(e);
@@ -104,7 +111,6 @@
       settings.style.top = `${cursorCoords.y - 75}px`;
       settings.classList.remove('not-active');
     }
-    segmentEnd = true;
   });
 
   canvas.addEventListener('mousemove', e => {
@@ -119,14 +125,14 @@
     console.log('Successfully connected to websocket server!');
   };
 
-  connection.onerror = error => { };
+  connection.onerror = error => {};
 
   connection.onmessage = message => {
     const json = JSON.parse(message.data);
     if (json.type === 'init' && json.id) {
-      console.log(message.data);
-      let lines = Object.values(Object.values(json.state))
-      lines.forEach(line => {
+      console.log(json);
+      let lines = Object.values(Object.values(json.state));
+      lines.forEach(({ line }) => {
         parseAndDrawLine(line);
       });
     } else if (json.type === 'line' && json.data) {
@@ -136,7 +142,7 @@
 
   const loop = setInterval(sendLoop, 25);
   window.addEventListener('beforeunload', e => {
-    connection.onclose = () => { };
+    connection.onclose = () => {};
     connection.close();
     clearInterval(loop);
   });

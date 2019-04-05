@@ -2,15 +2,16 @@ const websocket = require('ws');
 const http = require('http');
 const uuid = require('uuid/v1');
 const express = require('express');
+const ds = require('./drawDataService');
+const schedule = require('node-schedule');
+
 const app = express();
 const port = 1337;
-let state = {};
-let userSegmentState = {};
+const drawDataService = new ds.DrawDataService();
 const server = http.createServer(app);
 app.use(express.static(__dirname + '/static'));
 const connectedClients = {};
 const wss = new websocket.Server({ server });
-const schedule = require('node-schedule');
 
 const job = schedule.scheduleJob({ hour: 0, minute: 0 }, () => {
   const dateOld = new Date().getDate() - 2;
@@ -27,34 +28,27 @@ wss.on('connection', ws => {
       message: 'new client has connected',
       type: 'init',
       id,
-      state,userSegmentState
+      state: drawDataService.getAllLines()
     })
   );
-  state[id] = {}
+  drawDataService.initUserState(id);
 
   ws.on('message', message => {
-    let res = JSON.parse(message)
+    let res = JSON.parse(message);
     if (res.segmentStart) {
-      if (userSegmentState) {
-        state[id][uuid()] = userSegmentState[id];
-      }
-      userSegmentState[id] = [];
+      drawDataService.startUserSegment(id);
     }
-    if (res.segmentEnd) {
-      state[id][uuid()] = userSegmentState[id];
-      delete userSegmentState[id];
-
-    }
-    userSegmentState[id].push(Object.assign(message, {
-      date: new Date()
-    }));
+    console.log(message)
+    drawDataService.addLineFromUser(id, message);
 
     sendToAll(JSON.stringify({ type: 'line', data: message }));
+    if (res.segmentEnd) {
+      drawDataService.finishUserSegment(id);
+    }
   });
 
   ws.on('close', (code, reason) => {
-    state[id][uuid()] = userSegmentState[id]
-    delete userSegmentState[id]
+    drawDataService.endUserActivity(id);
     console.log(`closed connection ${id} code: ${code}`);
     delete connectedClients[id];
   });

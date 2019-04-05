@@ -5,6 +5,8 @@
   const closeSettingsBtn = document.getElementById('close-settings');
   const settings = document.getElementById('settings');
   const colorSelect = document.getElementById('color-select');
+  const redoButton = document.getElementById('redo-button')
+  const undoButton = document.getElementById('undo-button')
   const ctx = canvas.getContext('2d');
   const penSizeInput = document.getElementById('pen-size-input')
   ctx.canvas.width = 1800;
@@ -15,6 +17,8 @@
   penSizeInput.value = defaultPenSize
   let mouseDown = false;
   let mouseMove = false;
+  let mouseDownEvent = false;
+  let segmentEnd = false;
   let lastCtxCoords = { x: null, y: null };
   let currentMousePos = { x: null, y: null };
 
@@ -47,15 +51,26 @@
 
   function sendLoop() {
     if (mouseDown && mouseMove && lastCtxCoords) {
-      connection.send(
-        JSON.stringify({
-          x1: lastCtxCoords.x,
-          y1: lastCtxCoords.y,
-          x2: currentMousePos.x,
-          y2: currentMousePos.y,
-          color: colorSelect.value || defaultColor,
+      let message =
+      {
+        x1: lastCtxCoords.x,
+        y1: lastCtxCoords.y,
+        x2: currentMousePos.x,
+        y2: currentMousePos.y,
+        color: colorSelect.value || defaultColor,
+      };
+      if (mouseDownEvent) {
+        message["segmentStart"] = true;
+        mouseDownEvent = false;
+        console.log("segmentStart");
+      } else if (segmentEnd) {
+        message["segmentEnd"] = true;
+        segmentEnd = false;
+        console.log("segmentEnd");
+      }
 
-        })
+      connection.send(
+        JSON.stringify(message)
       );
       lastCtxCoords = currentMousePos;
       mouseMove = false;
@@ -64,12 +79,15 @@
 
   canvas.addEventListener('mouseout', e => {
     mouseDown = false;
+    segmentEnd = true;
+
   });
 
   canvas.addEventListener('mousedown', e => {
     if (e.which == 1) {
       lastCtxCoords = getMousePos(e);
       mouseDown = true;
+      mouseDownEvent = true;
       ctx.moveTo(lastCtxCoords.x, lastCtxCoords.y);
     }
   });
@@ -86,6 +104,7 @@
       settings.style.top = `${cursorCoords.y - 75}px`;
       settings.classList.remove('not-active');
     }
+    segmentEnd = true;
   });
 
   canvas.addEventListener('mousemove', e => {
@@ -105,7 +124,9 @@
   connection.onmessage = message => {
     const json = JSON.parse(message.data);
     if (json.type === 'init' && json.id) {
-      json.data.forEach(line => {
+      console.log(message.data);
+      let lines = Object.values(Object.values(json.state))
+      lines.forEach(line => {
         parseAndDrawLine(line);
       });
     } else if (json.type === 'line' && json.data) {

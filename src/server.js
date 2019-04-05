@@ -4,7 +4,8 @@ const uuid = require('uuid/v1');
 const express = require('express');
 const app = express();
 const port = 1337;
-let state = [];
+let state = {};
+let userSegmentState = {};
 const server = http.createServer(app);
 app.use(express.static(__dirname + '/static'));
 const connectedClients = {};
@@ -26,20 +27,34 @@ wss.on('connection', ws => {
       message: 'new client has connected',
       type: 'init',
       id,
-      data: state
+      state,userSegmentState
     })
   );
+  state[id] = {}
 
   ws.on('message', message => {
-    state.push(
-      Object.assign(message, {
-        date: new Date()
-      })
-    );
+    let res = JSON.parse(message)
+    if (res.segmentStart) {
+      if (userSegmentState) {
+        state[id][uuid()] = userSegmentState[id];
+      }
+      userSegmentState[id] = [];
+    }
+    if (res.segmentEnd) {
+      state[id][uuid()] = userSegmentState[id];
+      delete userSegmentState[id];
+
+    }
+    userSegmentState[id].push(Object.assign(message, {
+      date: new Date()
+    }));
+
     sendToAll(JSON.stringify({ type: 'line', data: message }));
   });
 
   ws.on('close', (code, reason) => {
+    state[id][uuid()] = userSegmentState[id]
+    delete userSegmentState[id]
     console.log(`closed connection ${id} code: ${code}`);
     delete connectedClients[id];
   });

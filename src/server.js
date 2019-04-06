@@ -20,7 +20,6 @@ wss.on('connection', (ws, req) => {
   if (req.headers.cookie) {
     let cookie = req.headers.cookie.split('=');
     id = cookie[0] === 'X-Authorization' && cookie[1];
-    console.log(id);
   }
   const isNew = !drawDataService.checkIfUserExists(id);
   let state = { lines: drawDataService.getAllLines() };

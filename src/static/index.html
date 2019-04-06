@@ -16,7 +16,8 @@
     <div class="app" id="app">
       <div id="canvas-container" class="canvas-container">
         <div class="info">
-          Right click to paint, Left click to open up the settings
+          Right click to paint, Left click to open up the settings,
+          Ctrl+z/Ctrl+Shift+z undo/redo segment
         </div>
         <canvas
           tabindex="1"
@@ -38,19 +39,18 @@
             </div>
             <div class="pen-size-control control">
               <label for="pen-size">Pen size</label>
-              <input disabled="disabled"
+              <input
+                disabled="disabled"
                 type="text"
                 name="pen-size"
                 id="pen-size-input"
                 class="pen-size-input"
               />
             </div>
-            <!-- <div class="undo-redo-control control"></div> -->
           </div>
           <div class="buttons">
             <button
               class="control-button button-style"
-              disabled="disabled"
               id="redo-button"
               title="or press Ctrl+Shift+z"
             >
@@ -59,7 +59,11 @@
             <button id="close-settings" class="close-settings button-style">
               Close
             </button>
-            <button class="control-button button-style" id="undo-button" title="or press Ctrl+z">
+            <button
+              class="control-button button-style"
+              id="undo-button"
+              title="or press Ctrl+z"
+            >
               Undo
             </button>
           </div>

@@ -15,20 +15,33 @@ const wss = new websocket.Server({ server });
 
 const job = schedule.scheduleJob({ hour: 0, minute: 0 }, cleanUp);
 
-wss.on('connection', ws => {
-  const id = uuid();
+wss.on('connection', (ws, req) => {
+  let id = null;
+  if (req.headers.cookie) {
+    let cookie = req.headers.cookie.split('=');
+    id = cookie[0] === 'X-Authorization' && cookie[1];
+    console.log(id);
+  }
+  const isNew = !drawDataService.checkIfUserExists(id);
+  let state = { lines: drawDataService.getAllLines() };
+  if (isNew) {
+    id = uuid();
+    drawDataService.initUserState(id);
+  } else {
+    Object.assign(state, drawDataService.getUserState(id));
+  }
+  console.log(`request for connection: ${id} isNew? ${isNew}`);
 
   connectedClients[id] = ws;
-  console.log(`request for connection: ${id}`);
   ws.send(
     JSON.stringify({
       message: 'new client has connected',
       type: 'init',
       id,
-      state: drawDataService.getAllLines()
+      state,
+      isNew
     })
   );
-  drawDataService.initUserState(id);
 
   ws.on('message', json => {
     let message = JSON.parse(json);
@@ -69,7 +82,7 @@ function cleanUp() {
   sendToAll(
     JSON.stringify({
       type: 'cleanup',
-      state: drawDataService.getAllLines()
+      state: { lines: drawDataService.getAllLines() }
     })
   );
 }

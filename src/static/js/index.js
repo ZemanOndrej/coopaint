@@ -21,8 +21,8 @@
   let segmentEnd = false;
   let lastCtxCoords = { x: null, y: null };
   let currentMousePos = { x: null, y: null };
-  let sentSegments = 0;
-  let undoCounter = 0;
+  let segmentsSent = 0;
+  let undoCount = 0;
   let lines = [];
 
   function getMousePos(evt) {
@@ -65,13 +65,13 @@
       };
       if (mouseDownEvent) {
         newLine['segmentStart'] = true;
-        undoCounter = 0;
+        undoCount = 0;
         mouseDownEvent = false;
       }
       if (segmentEnd) {
         newLine['segmentEnd'] = true;
         segmentEnd = false;
-        sentSegments++;
+        segmentsSent++;
       }
 
       connection.send(JSON.stringify({ type: 'newLine', line: newLine }));
@@ -81,17 +81,17 @@
   }
 
   function sendUndoRequest() {
-    if (sentSegments > 0) {
-      sentSegments--;
-      undoCounter++;
+    if (segmentsSent > 0) {
+      segmentsSent--;
+      undoCount++;
       connection.send(JSON.stringify({ type: 'undo' }));
     }
   }
 
   function sendRedoRequest() {
-    if (undoCounter > 0) {
-      sentSegments++;
-      undoCounter--;
+    if (undoCount > 0) {
+      segmentsSent++;
+      undoCount--;
       connection.send(JSON.stringify({ type: 'redo' }));
     }
   }
@@ -156,15 +156,20 @@
   };
 
   connection.onclose = msg => {
-    alert('Websocket connection was closed by server.')
+    alert('Websocket connection was closed by server.');
     console.error('Websocket connection was closed with message: ', msg);
   };
 
   connection.onmessage = json => {
     const message = JSON.parse(json.data);
-    if ((message.type === 'init' && message.id) || message.type === 'cleanup') {
-      lines = Object.values(Object.values(message.state));
+    if (message.type === 'init' && message.id) {
+      lines = Object.values(Object.values(message.state.lines));
       redrawCanvas();
+      document.cookie = 'X-Authorization=' + message.id + '; path=/';
+      if (!message.isNew) {
+        segmentsSent = message.state.segmentsSent;
+        undoCount = message.state.undoCount;
+      }
     } else if (message.type === 'newLine' && message.data) {
       lines.push(message.data);
       drawLine(message.data);
@@ -173,6 +178,9 @@
       redrawCanvas();
     } else if (message.type === 'redo') {
       lines = lines.concat(message.segment.lines);
+      redrawCanvas();
+    } else if (message.type === 'cleanup') {
+      lines = Object.values(Object.values(message.state.lines));
       redrawCanvas();
     }
   };

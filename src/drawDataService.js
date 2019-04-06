@@ -20,8 +20,8 @@ class DrawDataService {
   }
 
   endUserActivity(id) {
-    if (this.state[id] && this.state[id].length != 0) {
-      this.finishUserSegment();
+    this.finishUserSegment();
+    if (this.state[id] && this.state[id].segments.length === 0) {
       delete this.state[id];
     }
   }
@@ -106,6 +106,17 @@ class DrawDataService {
       line => deletedSegments.indexOf(line.segmentId) === -1
     );
     return removedInactiveUsers;
+  }
+
+  checkIfUserExists(id) {
+    return !!this.state[id];
+  }
+
+  getUserState(id) {
+    return {
+      segmentsSent: this.state[id].segments.length,
+      undoCount: this.state[id].undid.length
+    };
   }
 }
 module.exports = {

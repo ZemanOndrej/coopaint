@@ -156,12 +156,13 @@
   };
 
   connection.onclose = msg => {
+    alert('Websocket connection was closed by server.')
     console.error('Websocket connection was closed with message: ', msg);
   };
 
   connection.onmessage = json => {
     const message = JSON.parse(json.data);
-    if (message.type === 'init' && message.id) {
+    if ((message.type === 'init' && message.id) || message.type === 'cleanup') {
       lines = Object.values(Object.values(message.state));
       redrawCanvas();
     } else if (message.type === 'newLine' && message.data) {

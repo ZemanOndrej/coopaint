@@ -39,8 +39,8 @@ wss.on('connection', ws => {
       const segmentId = drawDataService.undoLastUserSegment(id);
       sendToAll(JSON.stringify({ type: 'undo', segmentId }));
     } else if (message.type === 'redo') {
-      // drawDataService.redoLastUserSegment(id);
-      // sendToAll(JSON.stringify({ type: 'redo', segmentId }));
+      const segment =drawDataService.redoLastUserSegment(id);
+      sendToAll(JSON.stringify({ type: 'redo', segment }));
     } else if (message.type === 'newLine') {
       let { line } = message;
       if (line.segmentStart) {

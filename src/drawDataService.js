@@ -15,7 +15,7 @@ class DrawDataService {
   }
 
   initUserState(id) {
-    this.state[id] = [];
+    this.state[id] = { segments: [], undid: [] };
   }
 
   endUserActivity(id) {
@@ -30,7 +30,7 @@ class DrawDataService {
       this.userSegmentState[id] &&
       this.userSegmentState[id].lines.length > 0
     ) {
-      this.state[id].push(this.userSegmentState[id]);
+      this.state[id].segments.push(this.userSegmentState[id]);
     }
     delete this.userSegmentState[id];
   }
@@ -50,18 +50,30 @@ class DrawDataService {
   }
 
   undoLastUserSegment(id) {
-    if (this.state[id].length > 0) {
-      const segmentId = this.state[id][this.state[id].length - 1].id;
+    if (this.state[id].segments.length > 0) {
+      const segmentId = this.state[id].segments[
+        this.state[id].segments.length - 1
+      ].id;
       this.allLines = this.allLines.filter(line => line.segmentId != segmentId);
-      this.state[id] = this.state[id].filter(
-        segment => segment.id != segmentId
+
+      this.state[id].undid = [
+        ...this.state[id].undid,
+        this.state[id].segments.find(segment => segment.id === segmentId)
+      ];
+      this.state[id].segments = this.state[id].segments.filter(
+        line => line.id != segmentId
       );
       return segmentId;
     }
     return -1;
   }
 
-  redoLastUserSegment(id) {}
+  redoLastUserSegment(id) {
+    const undidSegment = this.state[id].undid.pop();
+    this.allLines = this.allLines.concat(undidSegment.lines);
+    this.state[id].segments.push(undidSegment);
+    return undidSegment;
+  }
 
   getAllLines() {
     return this.allLines;

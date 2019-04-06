@@ -22,7 +22,7 @@
   let lastCtxCoords = { x: null, y: null };
   let currentMousePos = { x: null, y: null };
   let sentSegments = 0;
-  // let removedSegments =
+  let undoCounter = 0;
   let lines = [];
 
   function getMousePos(evt) {
@@ -56,7 +56,6 @@
 
   function sendLoop() {
     if ((mouseDown && mouseMove && lastCtxCoords) || segmentEnd) {
-      console.log(mouseDown || segmentEnd);
       let newLine = {
         x1: lastCtxCoords.x,
         y1: lastCtxCoords.y,
@@ -67,13 +66,11 @@
       if (mouseDownEvent) {
         newLine['segmentStart'] = true;
         mouseDownEvent = false;
-        console.log('segmentStart');
       }
       if (segmentEnd) {
         newLine['segmentEnd'] = true;
         segmentEnd = false;
         sentSegments++;
-        console.log('segmentEnd');
       }
 
       connection.send(JSON.stringify({ type: 'newLine', line: newLine }));
@@ -83,10 +80,19 @@
   }
 
   function sendUndoRequest() {
-    connection.send(JSON.stringify({ type: 'undo' }));
+    if (sentSegments > 0) {
+      sentSegments--;
+      undoCounter++;
+      connection.send(JSON.stringify({ type: 'undo' }));
+    }
   }
+
   function sendRedoRequest() {
-    connection.send(JSON.stringify({ type: 'undo' }));
+    if (undoCounter > 0) {
+      sentSegments++;
+      undoCounter--;
+      connection.send(JSON.stringify({ type: 'redo' }));
+    }
   }
 
   redoButton.addEventListener('click', sendRedoRequest);
@@ -149,7 +155,6 @@
   connection.onmessage = json => {
     const message = JSON.parse(json.data);
     if (message.type === 'init' && message.id) {
-      console.log(message.state);
       lines = Object.values(Object.values(message.state));
       redrawCanvas();
     } else if (message.type === 'newLine' && message.data) {
@@ -159,6 +164,8 @@
       lines = lines.filter(line => line.segmentId != message.segmentId);
       redrawCanvas();
     } else if (message.type === 'redo') {
+      lines = lines.concat(message.segment.lines);
+      redrawCanvas();
     }
   };
 

@@ -33,17 +33,24 @@ wss.on('connection', ws => {
   );
   drawDataService.initUserState(id);
 
-  ws.on('message', message => {
-    let res = JSON.parse(message);
-    if (res.segmentStart) {
-      drawDataService.startUserSegment(id);
-    }
-    console.log(message)
-    drawDataService.addLineFromUser(id, message);
-
-    sendToAll(JSON.stringify({ type: 'line', data: message }));
-    if (res.segmentEnd) {
-      drawDataService.finishUserSegment(id);
+  ws.on('message', json => {
+    let message = JSON.parse(json);
+    if (message.type === 'undo') {
+      const segmentId = drawDataService.undoLastUserSegment(id);
+      sendToAll(JSON.stringify({ type: 'undo', segmentId }));
+    } else if (message.type === 'redo') {
+      // drawDataService.redoLastUserSegment(id);
+      // sendToAll(JSON.stringify({ type: 'redo', segmentId }));
+    } else if (message.type === 'newLine') {
+      let { line } = message;
+      if (line.segmentStart) {
+        drawDataService.startUserSegment(id);
+      }
+      const lineSegment = drawDataService.addLineFromUser(id, line);
+      sendToAll(JSON.stringify({ type: 'newLine', data: lineSegment }));
+      if (line.segmentEnd) {
+        drawDataService.finishUserSegment(id);
+      }
     }
   });
 

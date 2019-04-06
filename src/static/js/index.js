@@ -21,7 +21,9 @@
   let segmentEnd = false;
   let lastCtxCoords = { x: null, y: null };
   let currentMousePos = { x: null, y: null };
-  let sentSegments=0;
+  let sentSegments = 0;
+  // let removedSegments =
+  let lines = [];
 
   function getMousePos(evt) {
     const rect = canvas.getBoundingClientRect();
@@ -31,7 +33,8 @@
     };
   }
 
-  function drawLine(x1, y1, x2, y2, color) {
+  function drawLine(line) {
+    const { x1, x2, y1, y2, color } = line;
     ctx.beginPath();
     ctx.lineWidth = penSizeInput.value;
     ctx.strokeStyle = color || defaultColor;
@@ -40,10 +43,11 @@
     ctx.stroke();
   }
 
-  function parseAndDrawLine(data) {
-    let line = JSON.parse(data);
-    let { x1, y1, x2, y2, color } = line;
-    drawLine(x1, y1, x2, y2, color);
+  function redrawCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    lines.forEach(line => {
+      drawLine(line);
+    });
   }
 
   function closeSettings() {
@@ -53,7 +57,7 @@
   function sendLoop() {
     if ((mouseDown && mouseMove && lastCtxCoords) || segmentEnd) {
       console.log(mouseDown || segmentEnd);
-      let message = {
+      let newLine = {
         x1: lastCtxCoords.x,
         y1: lastCtxCoords.y,
         x2: currentMousePos.x,
@@ -61,26 +65,32 @@
         color: colorSelect.value || defaultColor
       };
       if (mouseDownEvent) {
-        message['segmentStart'] = true;
+        newLine['segmentStart'] = true;
         mouseDownEvent = false;
         console.log('segmentStart');
       }
       if (segmentEnd) {
-        message['segmentEnd'] = true;
+        newLine['segmentEnd'] = true;
         segmentEnd = false;
         sentSegments++;
         console.log('segmentEnd');
       }
 
-      connection.send(JSON.stringify(message));
+      connection.send(JSON.stringify({ type: 'newLine', line: newLine }));
       lastCtxCoords = currentMousePos;
       mouseMove = false;
     }
   }
 
-  undoButton.addEventListener('click', e => {
+  function sendUndoRequest() {
     connection.send(JSON.stringify({ type: 'undo' }));
-  });
+  }
+  function sendRedoRequest() {
+    connection.send(JSON.stringify({ type: 'undo' }));
+  }
+
+  redoButton.addEventListener('click', sendRedoRequest);
+  undoButton.addEventListener('click', sendUndoRequest);
 
   canvas.addEventListener('mouseout', e => {
     if (mouseDown) {
@@ -95,6 +105,14 @@
       mouseDown = true;
       mouseDownEvent = true;
       ctx.moveTo(lastCtxCoords.x, lastCtxCoords.y);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.keyCode == 90 && e.ctrlKey && e.shiftKey) {
+      sendRedoRequest();
+    } else if (e.keyCode == 90 && e.ctrlKey) {
+      sendUndoRequest();
     }
   });
 
@@ -119,6 +137,7 @@
   });
 
   closeSettingsBtn.addEventListener('click', closeSettings);
+
   colorSelect.addEventListener('change', closeSettings);
 
   connection.onopen = e => {
@@ -127,16 +146,19 @@
 
   connection.onerror = error => {};
 
-  connection.onmessage = message => {
-    const json = JSON.parse(message.data);
-    if (json.type === 'init' && json.id) {
-      console.log(json);
-      let lines = Object.values(Object.values(json.state));
-      lines.forEach(({ line }) => {
-        parseAndDrawLine(line);
-      });
-    } else if (json.type === 'line' && json.data) {
-      parseAndDrawLine(json.data);
+  connection.onmessage = json => {
+    const message = JSON.parse(json.data);
+    if (message.type === 'init' && message.id) {
+      console.log(message.state);
+      lines = Object.values(Object.values(message.state));
+      redrawCanvas();
+    } else if (message.type === 'newLine' && message.data) {
+      lines.push(message.data);
+      drawLine(message.data);
+    } else if (message.type === 'undo' && message.segmentId) {
+      lines = lines.filter(line => line.segmentId != message.segmentId);
+      redrawCanvas();
+    } else if (message.type === 'redo') {
     }
   };
 

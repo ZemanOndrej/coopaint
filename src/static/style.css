@@ -11,7 +11,8 @@
   font-family: 'Roboto', sans-serif;
 }
 
-html, body {
+html,
+body {
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
@@ -63,7 +64,7 @@ html {
   height: 150px;
   background: #d1d1d1;
   border: 2px solid #eeeeee;
-  padding: 50px 50px 20px 50px
+  padding: 50px 50px 20px 50px;
 }
 
 .settings-container {
@@ -88,7 +89,7 @@ html {
 .buttons {
   margin-top: auto;
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
 }
 
 .not-active {
@@ -99,11 +100,11 @@ html {
   color: #fff !important;
   text-transform: uppercase;
   background: #60a3bc;
-  padding: 8px;
+  padding: 5px;
   border-radius: 10px;
   display: inline-block;
   border: none;
-  width: 100px;
+  width: 75px;
 }
 
 .button-style:hover {
@@ -116,4 +117,8 @@ html {
 
 .controls input {
   width: 70px;
+}
+
+.control-button {
+  padding: 5px 15px 5px 15px;
 }

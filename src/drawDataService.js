@@ -11,6 +11,7 @@ class DrawDataService {
     const lineSegment = { ...line, segmentId: this.userSegmentState[id].id };
     this.userSegmentState[id].lines.push(lineSegment);
     this.allLines.push(lineSegment);
+    this.state[id].undid = [];
     return lineSegment;
   }
 
@@ -19,7 +20,7 @@ class DrawDataService {
   }
 
   endUserActivity(id) {
-    if (this.state[id].length != 0) {
+    if (this.state[id] && this.state[id].length != 0) {
       this.finishUserSegment();
       delete this.state[id];
     }
@@ -77,6 +78,34 @@ class DrawDataService {
 
   getAllLines() {
     return this.allLines;
+  }
+
+  cleanOlderSegments(oldDate) {
+    let deletedSegments = [];
+    Object.keys(this.state).forEach(key => {
+      this.state[key].segments = this.state[key].segments.reduce(
+        (acc, segment) => {
+          if (segment.date > oldDate) {
+            return acc.concat(segment);
+          } else {
+            deletedSegments.push(segment.id);
+            return acc;
+          }
+        },
+        []
+      );
+    });
+    const removedInactiveUsers = [];
+    Object.keys(this.state).forEach(key => {
+      if (this.state[key].segments.length === 0) {
+        removedInactiveUsers.push(key);
+        delete this.state[key];
+      }
+    });
+    this.allLines = this.allLines.filter(
+      line => deletedSegments.indexOf(line.segmentId) === -1
+    );
+    return removedInactiveUsers;
   }
 }
 module.exports = {

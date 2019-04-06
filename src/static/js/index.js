@@ -65,6 +65,7 @@
       };
       if (mouseDownEvent) {
         newLine['segmentStart'] = true;
+        undoCounter = 0;
         mouseDownEvent = false;
       }
       if (segmentEnd) {
@@ -150,7 +151,13 @@
     console.log('Successfully connected to websocket server!');
   };
 
-  connection.onerror = error => {};
+  connection.onerror = error => {
+    console.error('There was error with Websocket connections: ', error);
+  };
+
+  connection.onclose = msg => {
+    console.error('Websocket connection was closed with message: ', msg);
+  };
 
   connection.onmessage = json => {
     const message = JSON.parse(json.data);

@@ -75,8 +75,10 @@ function cleanUp() {
     new Date(new Date() - 2 * 24 * 60 * 60 * 1000)
   );
   inactiveUsers.forEach(userId => {
-    connectedClients[userId].close();
-    delete connectedClients[userId];
+    if (connectedClients[userId]) {
+      connectedClients[userId].close();
+      delete connectedClients[userId];
+    }
   });
   sendToAll(
     JSON.stringify({

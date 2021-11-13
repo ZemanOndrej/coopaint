@@ -46,7 +46,7 @@ class DrawDataService {
     this.userSegmentState[id] = {
       date: new Date(),
       id: uuid(),
-      lines: []
+      lines: [],
     };
   }
 
@@ -59,10 +59,10 @@ class DrawDataService {
 
       this.state[id].undid = [
         ...this.state[id].undid,
-        this.state[id].segments.find(segment => segment.id === segmentId)
+        this.state[id].segments.find(segment => segment.id === segmentId),
       ];
       this.state[id].segments = this.state[id].segments.filter(
-        line => line.id != segmentId
+        line => line.id != segmentId,
       );
       return segmentId;
     }
@@ -92,7 +92,7 @@ class DrawDataService {
             return acc;
           }
         },
-        []
+        [],
       );
     });
     const removedInactiveUsers = [];
@@ -103,22 +103,22 @@ class DrawDataService {
       }
     });
     this.allLines = this.allLines.filter(
-      line => deletedSegments.indexOf(line.segmentId) === -1
+      line => deletedSegments.indexOf(line.segmentId) === -1,
     );
     return removedInactiveUsers;
   }
 
   checkIfUserExists(id) {
-    return !!this.state[id];
+    return !!this.state[id] && !!this.userSegmentState[id];
   }
 
   getUserState(id) {
     return {
       segmentsSent: this.state[id].segments.length,
-      undoCount: this.state[id].undid.length
+      undoCount: this.state[id].undid.length,
     };
   }
 }
 module.exports = {
-  DrawDataService
+  DrawDataService,
 };

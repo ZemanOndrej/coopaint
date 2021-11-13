@@ -1,6 +1,6 @@
 (function() {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
-  const connection = new WebSocket('ws://' + window.location.host);
+  const connection = new WebSocket('wss://' + window.location.host);
   const canvas = document.getElementById('canvas');
   const closeSettingsBtn = document.getElementById('close-settings');
   const settings = document.getElementById('settings');

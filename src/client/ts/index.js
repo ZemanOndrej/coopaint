@@ -28,6 +28,7 @@ let currentMousePos = { x: null, y: null };
 let segmentsSent = 0;
 let undoCount = 0;
 let lines = [];
+let pingTime = null;
 
 function getMousePos(evt) {
 	const rect = canvas.getBoundingClientRect();
@@ -186,12 +187,21 @@ connection.onmessage = json => {
 	} else if (message.type === 'cleanup') {
 		lines = Object.values(Object.values(message.state.lines));
 		redrawCanvas();
+	} else if (message.type === 'pong') {
+		console.log(`pong server response took ${Date.now() - pingTime}ms`)
 	}
 };
 
 const loop = setInterval(sendLoop, 25);
+
+const pingInterval = setInterval(()=>{
+	console.log('ping')
+	pingTime = Date.now();
+	connection.send(JSON.stringify({type: 'ping'}));
+}, 55 * 1000)
 window.addEventListener('beforeunload', e => {
 	connection.onclose = () => {};
 	connection.close();
 	clearInterval(loop);
+	clearInterval(pingInterval);
 });

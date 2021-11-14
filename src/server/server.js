@@ -44,7 +44,10 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', json => {
     let message = JSON.parse(json);
-    if (message.type === 'undo') {
+		
+    if (message.type === 'ping') {
+			ws.send(JSON.stringify({type: 'pong'}));
+		} else if (message.type === 'undo') {
       const segmentId = drawDataService.undoLastUserSegment(id);
       sendToAll(JSON.stringify({ type: 'undo', segmentId }));
     } else if (message.type === 'redo') {

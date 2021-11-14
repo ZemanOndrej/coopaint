@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=development --config webpack.common.js",
-    "build-prod": "webpack --mode=production --config webpack.common.js"
+    "build-prod": "npm install && webpack --mode=production --config webpack.common.js"
   },
   "author": "",
   "license": "ISC",

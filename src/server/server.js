@@ -4,12 +4,12 @@ const uuid = require('uuid/v1');
 const express = require('express');
 const ds = require('./drawDataService');
 const schedule = require('node-schedule');
-
+const path = require('path');
 const app = express();
 const port = 1337;
 const drawDataService = new ds.DrawDataService();
 const server = http.createServer(app);
-app.use(express.static(__dirname + '/static'));
+app.use(express.static(path.join(__dirname, '..', '..' , 'dist')));
 const connectedClients = {};
 const wss = new websocket.Server({ server });
 

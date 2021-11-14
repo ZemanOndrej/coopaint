@@ -5,7 +5,11 @@
   "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/server.js"
+	"start-server": "node ./src/server/server.js",
+    "start": "npm run build-client && npm run start-server",
+    "start-prod": "npm run build-client-prod && npm run start-server",
+	"build-client": "cd ./src/client && npm run build",
+	"build-client-prod": "cd ./src/client && npm run build-prod"
   },
   "author": "",
   "license": "ISC",

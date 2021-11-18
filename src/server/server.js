@@ -15,6 +15,10 @@ const wss = new websocket.Server({ server });
 
 const job = schedule.scheduleJob({ hour: 0, minute: 0 }, cleanUp);
 
+app.get('/hello',(req, res)=>{
+	res.send('welcome to coopaint api!')
+})
+
 wss.on('connection', (ws, req) => {
   let id = null;
   if (req.headers.cookie) {

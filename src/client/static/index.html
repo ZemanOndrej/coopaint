@@ -1,75 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Canvas</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Canvas</title>
+		<link
+			href="https://fonts.googleapis.com/css?family=Roboto"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+	</head>
 
-  <body>
-    <div class="app" id="app">
-      <div id="canvas-container" class="canvas-container">
-        <div class="info">
-          Right click to paint, Left click to open up the settings,
-          Ctrl+z/Ctrl+Shift+z undo/redo segment
-        </div>
-        <canvas
-          tabindex="1"
-          id="canvas"
-          class="canvas"
-          oncontextmenu="return false;"
-        ></canvas>
-      </div>
-      <div
-        class="settings not-active"
-        id="settings"
-        oncontextmenu="return false;"
-      >
-        <div class="settings-container">
-          <div class="controls">
-            <div class="color-select-control control">
-              <label for="color-select">Select Color</label>
-              <input type="color" name="color-select" id="color-select" />
-            </div>
-            <div class="pen-size-control control">
-              <label for="pen-size">Pen size</label>
-              <input
-                disabled="disabled"
-                type="text"
-                name="pen-size"
-                id="pen-size-input"
-                class="pen-size-input"
-              />
-            </div>
-          </div>
-          <div class="buttons">
-            <button
-              class="control-button button-style"
-              id="redo-button"
-              title="or press Ctrl+Shift+z"
-            >
-              Redo
-            </button>
-            <button id="close-settings" class="close-settings button-style">
-              Close
-            </button>
-            <button
-              class="control-button button-style"
-              id="undo-button"
-              title="or press Ctrl+z"
-            >
-              Undo
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script src="app.bundle.js"></script>
-  </body>
+	<body>
+		<div class="app" id="app">
+			<div id="canvas-container" class="canvas-container">
+				<div class="info">
+					Right click to paint, Left click to open up the settings,
+					Ctrl+z/Ctrl+Shift+z undo/redo segment
+				</div>
+				<canvas
+					tabindex="1"
+					id="canvas"
+					class="canvas"
+					oncontextmenu="return false;"
+				></canvas>
+			</div>
+			<div
+				class="settings not-active"
+				id="settings"
+				oncontextmenu="return false;"
+			>
+				<div class="settings-container">
+					<div class="controls">
+						<div class="color-select-control control">
+							<label for="color-select">Select Color</label>
+							<input type="color" name="color-select" id="color-select" />
+						</div>
+						<div class="pen-size-control control">
+							<label for="pen-size">Pen size</label>
+							<input
+								disabled="disabled"
+								type="text"
+								name="pen-size"
+								id="pen-size-input"
+								class="pen-size-input"
+							/>
+						</div>
+					</div>
+					<div class="buttons">
+						<button
+							class="control-button button-style"
+							id="redo-button"
+							title="or press Ctrl+Shift+z"
+						>
+							Redo
+						</button>
+						<button id="close-settings" class="close-settings button-style">
+							Close
+						</button>
+						<button
+							class="control-button button-style"
+							id="undo-button"
+							title="or press Ctrl+z"
+						>
+							Undo
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="app.bundle.js"></script>
+	</body>
 </html>

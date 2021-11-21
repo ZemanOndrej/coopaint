@@ -1,5 +1,6 @@
 FROM node:14.18.1-alpine3.13
 ENV NODE_ENV production
+ENV PORT 1337
 ENV PATH /usr/app/src/client/node_modules/.bin:$PATH
 WORKDIR /usr/app
 

@@ -7,12 +7,16 @@ const dotenv = require('dotenv').config( {
 
 module.exports = (env, options) => ( {
   entry: {
-    app: './ts/index'
+    app: './ts/index.ts'
   },
   output: {
     path: path.join(__dirname, '..', '..', 'dist'),
     filename: 'app.bundle.js'
   },
+
+	resolve: {
+    extensions: ['.ts', '.js', '.json']
+	},
   module: {
       rules: [
         {
@@ -29,7 +33,7 @@ module.exports = (env, options) => ( {
 				]
 		}),
 		new webpack.DefinePlugin({
-      "process.env": JSON.stringify({...dotenv.parsed, mode: options.mode}),
+      "process.env": JSON.stringify({...dotenv.parsed, mode: options.mode,port: options.port}),
     })
 ]
 })

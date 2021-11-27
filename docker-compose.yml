@@ -1,8 +1,8 @@
 version: '2.1'
 
 services:
-  canvas-paint:
-    image: canvas-paint
+  coopaint:
+    image: coopaint
     build: .
     environment:
       NODE_ENV: production

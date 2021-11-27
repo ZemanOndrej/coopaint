@@ -1,7 +1,7 @@
 import { BoardState, defaultColor, drawLine, redrawCanvas } from './canvas';
 
 const protocol = process.env.mode === 'production' ? 'wss://' : 'ws://';
-const wsURL = protocol + window.location.hostname + ':' + (process.env.PORT || 1337);
+const wsURL = protocol + process.env.URL || 'localhost:1337';
 console.log(wsURL);
 
 const connection = new WebSocket(wsURL);

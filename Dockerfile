@@ -12,4 +12,4 @@ RUN npm run build-client-prod --production --silent
 RUN rm -rf ./src/client
 
 EXPOSE 1337
-CMD npm run start-server
+CMD ["node", "./src/server/server.js"]

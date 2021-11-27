@@ -33,7 +33,7 @@ module.exports = (env, options) => ( {
 				]
 		}),
 		new webpack.DefinePlugin({
-      "process.env": JSON.stringify({...dotenv.parsed, mode: options.mode,port: options.port}),
+      "process.env": JSON.stringify({...dotenv.parsed, mode: options.mode, URL: (dotenv.parsed && dotenv.parsed.URL) || options.URL}),
     })
 ]
 })

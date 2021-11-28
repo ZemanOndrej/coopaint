@@ -3,6 +3,7 @@ ENV NODE_ENV production
 ENV PORT 1337
 ENV PATH /usr/app/src/client/node_modules/.bin:$PATH
 WORKDIR /usr/app
+RUN echo $URL
 
 COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
 RUN npm install --production --silent && mv node_modules .

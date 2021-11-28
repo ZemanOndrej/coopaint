@@ -2,9 +2,19 @@ version: '2.1'
 
 services:
   coopaint:
-    image: coopaint
-    build: .
+    container_name: coopaint
+    image: ondrejzeman/coopaint
     environment:
       NODE_ENV: production
+      URL: coopaint.ozeman.eu
     ports:
       - 1337:1337
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: always
+    ports:
+      - 8081:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 120

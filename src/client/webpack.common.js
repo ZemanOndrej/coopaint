@@ -33,7 +33,15 @@ module.exports = (env, options) => ( {
 				]
 		}),
 		new webpack.DefinePlugin({
-      "process.env": JSON.stringify({...dotenv.parsed, mode: options.mode, URL: (dotenv.parsed && dotenv.parsed.URL) || options.URL}),
+      "process.env": JSON.stringify({
+				...dotenv.parsed,
+				mode: options.mode,
+				URL: (dotenv.parsed && dotenv.parsed.URL) ||
+							options.URL ||
+							options.mode === 'production'
+							? 'coopaint.ozeman.eu'
+							: 'localhost:1337'
+			}),
     })
 ]
 })
